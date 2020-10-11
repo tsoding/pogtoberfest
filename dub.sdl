@@ -1,0 +1,5 @@
+name "pogtoberfest"
+description "Marks all of the repos in an organization as participating in Hacktoberfest"
+authors "mr. streamer"
+copyright "Copyright © 2020, mr. streamer"
+license "MIT"

@@ -1,0 +1,15 @@
+.dub
+docs.json
+__dummy.html
+docs/
+/pogtoberfest
+pogtoberfest.so
+pogtoberfest.dylib
+pogtoberfest.dll
+pogtoberfest.a
+pogtoberfest.lib
+pogtoberfest-test-*
+*.exe
+*.o
+*.obj
+*.lst
