@@ -43,7 +43,7 @@ struct Repo
         auto url = BASE_URL ~ "/repos/" ~ owner ~ "/" ~ name ~ "/topics";
         writeln(url);
         JSONValue payload = [
-            "names": chain(topics, ["hacktoberfest", "hacktoberfest2020"]).array
+            "names" : chain(topics, ["hacktoberfest", "hacktoberfest2020"]).array
         ];
         writeln(put(url, payload.toString, github.client));
     }
@@ -53,7 +53,7 @@ struct Repo
         auto url = BASE_URL ~ "/repos/" ~ owner ~ "/" ~ name ~ "/topics";
         writeln(url);
         JSONValue payload = [
-            "names": topics.filter!(x => !startsWith(x, "hacktoberfest")).array
+            "names" : topics.filter!(x => !startsWith(x, "hacktoberfest")).array
         ];
         writeln(put(url, payload.toString, github.client));
     }
@@ -70,23 +70,18 @@ Org get_org(GitHub github, string owner)
 
 auto repos_of_owner(GitHub github, string owner, long page, long per_page)
 {
-    auto url = 
-        BASE_URL ~ "/orgs/" ~ owner ~ "/repos" 
-        ~ "?page=" ~ page.to!string 
-        ~ "&per_page=" ~ per_page.to!string
-        ~ "&type=public";
+    auto url = BASE_URL ~ "/orgs/" ~ owner ~ "/repos" ~ "?page=" ~ page.to!string
+        ~ "&per_page=" ~ per_page.to!string ~ "&type=public";
     auto content = get(url, github.client);
-    return parseJSON(content)
-        .array
-        .map!(x => Repo(
-            owner, 
-            x["name"].str, 
+    return parseJSON(content).array.map!(x => Repo(owner, x["name"].str,
             x["topics"].array.map!(y => y.str).array));
 }
 
-void usage()
+void usage(string error_message)
 {
-    stderr.writeln("Usage: pogtoberfest <token-file> <organization> <hacktoberfestify|unhacktoberfestify>");
+    stderr.writeln(error_message);
+    stderr.writeln(
+            "Usage: pogtoberfest <token-file> <organization> <hacktoberfestify|unhacktoberfestify>");
 }
 
 enum Command
@@ -95,47 +90,52 @@ enum Command
     Unhacktoberfestify,
 }
 
-Command command_by_name(string name)
+int main(string[] args)
 {
-    switch (name) {
-        case "hacktoberfestify":
-            return Command.Hacktoberfestify;
-        case "unhacktoberfestify":
-            return Command.Unhacktoberfestify;
-        default:
-            usage();
-            enforce(0, "Unknown command `" ~ name ~ "`");
-            assert(0);
-    }
-}
-
-void main(string[] args)
-{
-    if (args.length < 4) {
-        usage();
-        enforce(0, "Not enough arguments");
+    if (args.length < 4)
+    {
+        usage("Not enough arguments");
+        return 1;
     }
 
+    Command command;
+    try
+    {
+        // normalized_arg needs to be on a separate line. not sure why
+        auto normalized_arg = args[3].toLower.capitalize;
+        command = parse!Command(normalized_arg);
+        writeln("Command: ", command);
+    }
+    catch (Exception e)
+    {
+        usage("Unknown command " ~ args[3]);
+        return 1;
+    }
     GitHub github = strip(readText(args[1]));
     auto owner = args[2];
-    auto org = get_org(github, owner);
-    auto command = command_by_name(args[3]);
+    const org = get_org(github, owner);
     const long PER_PAGE = 100;
     const long PAGE_COUNT = (org.public_repos + PER_PAGE - 1) / PER_PAGE;
-    final switch (command) {
-        case Command.Hacktoberfestify:
-            foreach (i; 0..PAGE_COUNT) {
-                foreach (repo; repos_of_owner(github, owner, i + 1, PER_PAGE)) {
-                    repo.hacktoberfestify(github);
-                }
+    final switch (command)
+    {
+    case Command.Hacktoberfestify:
+        foreach (i; 0 .. PAGE_COUNT)
+        {
+            foreach (repo; repos_of_owner(github, owner, i + 1, PER_PAGE))
+            {
+                repo.hacktoberfestify(github);
             }
-            break;
-        case Command.Unhacktoberfestify:
-            foreach (i; 0..PAGE_COUNT) {
-                foreach (repo; repos_of_owner(github, owner, i + 1, PER_PAGE)) {
-                    repo.unhacktoberfestify(github);
-                }
+        }
+        break;
+    case Command.Unhacktoberfestify:
+        foreach (i; 0 .. PAGE_COUNT)
+        {
+            foreach (repo; repos_of_owner(github, owner, i + 1, PER_PAGE))
+            {
+                repo.unhacktoberfestify(github);
             }
-            break;
+        }
+        break;
     }
+    return 0;
 }
