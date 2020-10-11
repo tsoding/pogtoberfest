@@ -86,7 +86,7 @@ auto repos_of_owner(GitHub github, string owner, long page, long per_page)
 
 void usage()
 {
-    stderr.writeln("Usage: pogtoberfest <token-file> <owner> <hacktoberfestify|unhacktoberfestify>");
+    stderr.writeln("Usage: pogtoberfest <token-file> <organization> <hacktoberfestify|unhacktoberfestify>");
 }
 
 enum Command

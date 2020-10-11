@@ -4,6 +4,6 @@
 
 ```console
 $ dub build
-$ ./pogtoberfest <token-file> <owner> hacktoberfestify
-$ ./pogtoberfest <token-file> <owner> unhacktoberfestify
+$ ./pogtoberfest <token-file> <organization> hacktoberfestify
+$ ./pogtoberfest <token-file> <organization> unhacktoberfestify
 ```
