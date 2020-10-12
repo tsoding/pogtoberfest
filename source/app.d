@@ -84,8 +84,9 @@ auto repos_of_owner(GitHub github, string owner, long page, long per_page)
             x["topics"].array.map!(y => y.str).array));
 }
 
-void usage()
+void usage(string error_message)
 {
+    stderr.writeln("Error: " ~ error_message);
     stderr.writeln("Usage: pogtoberfest <token-file> <organization> <hacktoberfestify|unhacktoberfestify>");
 }
 
@@ -95,31 +96,24 @@ enum Command
     Unhacktoberfestify,
 }
 
-Command command_by_name(string name)
-{
-    switch (name) {
-        case "hacktoberfestify":
-            return Command.Hacktoberfestify;
-        case "unhacktoberfestify":
-            return Command.Unhacktoberfestify;
-        default:
-            usage();
-            enforce(0, "Unknown command `" ~ name ~ "`");
-            assert(0);
-    }
-}
-
-void main(string[] args)
+int main(string[] args)
 {
     if (args.length < 4) {
-        usage();
-        enforce(0, "Not enough arguments");
+        usage("Not enough arguments");
+        return 1;
     }
 
+    auto normalized_command = args[3].toLower.capitalize;
+    Command command;
+    try {
+        command = parse!Command(normalized_command);
+    } catch (Exception e) {
+        usage("Unknown command `" ~ args[3] ~ "`");
+        return 1;
+    }
     GitHub github = strip(readText(args[1]));
     auto owner = args[2];
-    auto org = get_org(github, owner);
-    auto command = command_by_name(args[3]);
+    const org = get_org(github, owner);
     const long PER_PAGE = 100;
     const long PAGE_COUNT = (org.public_repos + PER_PAGE - 1) / PER_PAGE;
     final switch (command) {
@@ -138,4 +132,5 @@ void main(string[] args)
             }
             break;
     }
+    return 0;
 }
