@@ -1,6 +1,6 @@
 # pogtoberfest
 
-Small but epic script in [D](https://dlang.org/), that Marks all of the repos in an organization as participating in [Hacktoberfest](https://hacktoberfest.digitalocean.com/).
+Small but epic script in [D](https://dlang.org/), that marks all of the repos in an organization as participating in [Hacktoberfest](https://hacktoberfest.digitalocean.com/).
 
 ## Quick Start
 
