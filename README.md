@@ -1,5 +1,7 @@
 # pogtoberfest
 
+Small but epic script in [D](https://dlang.org) that submits all your repos to [Hacktoberfest](https://hacktoberfest.digitalocean.com) event.
+
 ## Quick Start
 
 ```console
